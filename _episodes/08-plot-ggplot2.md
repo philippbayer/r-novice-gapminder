@@ -443,7 +443,7 @@ ggsave(filename = "results/lifeExp.png", plot = lifeExp_plot, width = 12, height
 
 
 ~~~
-Error in grDevices::dev.off(): QuartzBitmap_Output - unable to open file 'results/lifeExp.png'
+Error in grid.newpage(): could not open file 'results/lifeExp.png'
 ~~~
 {: .error}
 

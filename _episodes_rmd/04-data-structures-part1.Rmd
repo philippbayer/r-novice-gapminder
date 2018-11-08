@@ -20,12 +20,12 @@ source: Rmd
 ```{r, include=FALSE}
 source("../bin/chunk-options.R")
 knitr_fig_path("04-")
-
+library(tidyverse)
 ## Save the data
-cats_orig <- data.frame(coat = factor(c("calico", "black", "tabby")),
-                   weight = c(2.1, 5.0, 3.2),
+cats_orig <- tibble(coat = factor(c("calico", "black", "tabby")),
+                     weight = c(2.1, 5.0, 3.2),
                    likes_string = c(1, 0, 1))
-cats_bad <- data.frame(coat = factor(c("calico", "black", "tabby", "tabby")),
+cats_bad <- tibble(coat = factor(c("calico", "black", "tabby", "tabby")),
                    weight = factor(c(2.1, 5.0, 3.2, '2.3 or 2.4')),
                    likes_string = c(1, 0, 1, 1))
 cats <- cats_orig
@@ -36,11 +36,12 @@ such as you may already have in a spreadsheet or a CSV file. Let's start by
 making a toy dataset in your `data/` directory, called `feline-data.csv`:
 
 ```{r}
-cats <- data.frame(coat = c("calico", "black", "tabby"), 
-                    weight = c(2.1, 5.0,3.2), 
-                    likes_string = c(1, 0, 1))
-write.csv(x = cats, file = "data/feline-data.csv", row.names = FALSE)
+cats_orig <- tibble(coat = factor(c("calico", "black", "tabby")),
+                     weight = c(2.1, 5.0, 3.2),
+                   likes_string = c(1, 0, 1))
+write_csv(x = cats, path = 'data/feline_data.csv')
 ```
+
 The contents of the new file, `feline-data.csv`:
 ```{r, eval=FALSE}
 coat,weight,likes_string
@@ -58,19 +59,19 @@ tabby,3.2,1
 We can load this into R via the following:
 
 ```{r}
-cats <- read.csv(file = "data/feline-data.csv")
+cats <- read_csv('data/feline_data.csv')
 cats
 ```
 
-The `read.table` function is used for reading in tabular data stored in a text
+The `read_delim` function is used for reading in tabular data stored in a text
 file where the columns of data are separated by punctuation characters such as
 CSV files (csv = comma-separated values). Tabs and commas are the most common
 punctuation characters used to separate or delimit data points in csv files. 
-For convenience R provides 2 other versions of `read.table`. These are: `read.csv`
-for files where the data are separated with commas and `read.delim` for files
-where the data are separated with tabs. Of these three functions `read.csv` is
+For convenience tidyverse provides 2 other versions of `read_delim`. These are: `read_csv`
+for files where the data are separated with commas and `read_delim` for files
+where the data are separated with tabs. Of these three functions `read_csv` is
 the most commonly used.  If needed it is possible to override the default 
-delimiting punctuation marks for both `read.csv` and `read.delim`.
+delimiting punctuation marks for both `read_csv` and `read_delim`.
 
 
 We can begin exploring our dataset right away, pulling out columns by specifying
@@ -91,7 +92,7 @@ paste("My cat is", cats$coat)
 
 But what about
 
-```{r}
+```{r error=TRUE}
 cats$weight + cats$coat
 ```
 
@@ -142,14 +143,14 @@ Load the new cats data like before, and check what type of data we find in the
 `weight` column:
 
 ```{r}
-cats <- read.csv(file="data/feline-data_v2.csv")
+cats <- read_csv(file="data/feline-data_v2.csv")
 typeof(cats$weight)
 ```
 
 Oh no, our weights aren't the double type anymore! If we try to do the same math
 we did on them before, we run into trouble:
 
-```{r}
+```{r error=TRUE}
 cats$weight + 2
 ```
 
@@ -161,7 +162,7 @@ double. The table that R loaded our cats data into is something called a
 structure* - that is, a structure which R knows how to build out of the basic
 data types.
 
-We can see that it is a *data.frame* by calling the `class` function on it:
+We can see that it is a *tibble* by calling the `class` function on it:
 
 ```{r}
 class(cats)
@@ -183,7 +184,7 @@ tabby,3.2,1
 And back in RStudio:
 
 ```{r, eval=FALSE}
-cats <- read.csv(file="data/feline-data.csv")
+cats <- read_csv(file="data/feline-data.csv")
 ```
 
 ```{r, include=FALSE}
@@ -361,9 +362,9 @@ names(my_example)
 {: .challenge}
 
 
-## Data Frames
+## Tibbles
 
-We said that columns in data.frames were vectors:
+We said that columns in tibbles were vectors:
 
 ```{r}
 str(cats$weight)
@@ -408,36 +409,6 @@ typeof(coats)
 typeof(CATegories)
 ```
 
-> ## Challenge 2
->
-> Is there a factor in our `cats` data.frame? what is its name?
-> Try using `?read.csv` to figure out how to keep text columns as character
-> vectors instead of factors; then write a command or two to show that the factor
-> in `cats` is actually a character vector when loaded in this way.
->
-> > ## Solution to Challenge 2
-> >
-> > One solution is use the argument `stringAsFactors`:
-> >
-> > ```{r, eval = FALSE}
-> > cats <- read.csv(file="data/feline-data.csv", stringsAsFactors=FALSE)
-> > str(cats$coat)
-> > ```
-> >
-> > Another solution is use the argument `colClasses`
-> > that allow finer control.
-> >
-> > ```{r, eval = FALSE}
-> > cats <- read.csv(file="data/feline-data.csv", colClasses=c(NA, NA, "character"))
-> > str(cats$coat)
-> > ```
-> >
-> > Note: new students find the help files difficult to understand; make sure to let them know
-> > that this is typical, and encourage them to take their best guess based on semantic meaning,
-> > even if they aren't sure.
-> {: .solution}
-{: .challenge}
-
 In modelling functions, it's important to know what the baseline levels are. This
 is assumed to be the first factor, but by default factors are labelled in
 alphabetical order. You can change this by specifying the levels:
@@ -448,7 +419,7 @@ factor_ordering_example <- factor(mydata, levels = c("control", "case"))
 str(factor_ordering_example)
 ```
 
-In this case, we've explicitly told R that "control" should represented by 1, and
+In this case, we've explicitly told R that "control" should be represented by 1, and
 "case" by 2. This designation can be very important for interpreting the
 results of statistical models!
 
@@ -558,75 +529,6 @@ str(cats[1,])
 > {: .solution}
 {: .challenge}
 
-## Matrices
-
-Last but not least is the matrix. We can declare a matrix full of zeros:
-
-```{r}
-matrix_example <- matrix(0, ncol=6, nrow=3)
-matrix_example
-```
-
-And similar to other data structures, we can ask things about our matrix:
-
-```{r}
-class(matrix_example)
-typeof(matrix_example)
-str(matrix_example)
-dim(matrix_example)
-nrow(matrix_example)
-ncol(matrix_example)
-```
-
-> ## Challenge 4
->
-> What do you think will be the result of
-> `length(matrix_example)`?
-> Try it.
-> Were you right? Why / why not?
->
-> > ## Solution to Challenge 4
-> >
-> > What do you think will be the result of
-> > `length(matrix_example)`?
-> >
-> > ```{r}
-> > matrix_example <- matrix(0, ncol=6, nrow=3)
-> > length(matrix_example)
-> > ```
-> >
-> > Because a matrix is a vector with added dimension attributes, `length`
-> > gives you the total number of elements in the matrix.
-> {: .solution}
-{: .challenge}
-
-
-> ## Challenge 5
->
-> Make another matrix, this time containing the numbers 1:50,
-> with 5 columns and 10 rows.
-> Did the `matrix` function fill your matrix by column, or by
-> row, as its default behaviour?
-> See if you can figure out how to change this.
-> (hint: read the documentation for `matrix`!)
->
-> > ## Solution to Challenge 5
-> >
-> > Make another matrix, this time containing the numbers 1:50,
-> > with 5 columns and 10 rows.
-> > Did the `matrix` function fill your matrix by column, or by
-> > row, as its default behaviour?
-> > See if you can figure out how to change this.
-> > (hint: read the documentation for `matrix`!)
-> >
-> > ```{r, eval=FALSE}
-> > x <- matrix(1:50, ncol=5, nrow=10)
-> > x <- matrix(1:50, ncol=5, nrow=10, byrow = TRUE) # to fill by row
-> > ```
-> {: .solution}
-{: .challenge}
-
-
 > ## Challenge 6
 >  Create a list of length two containing a character vector for each of the sections in this part of the workshop:
 >
@@ -649,33 +551,3 @@ ncol(matrix_example)
 > {: .solution}
 {: .challenge}
 
-
-> ## Challenge 7
->
-> Consider the R output of the matrix below:
-> ```{r, echo=FALSE}
-> matrix(c(4, 1, 9, 5, 10, 7), ncol = 2, byrow = TRUE)
-> ```
-> What was the correct command used to write this matrix? Examine
-> each command and try to figure out the correct one before typing them.
-> Think about what matrices the other commands will produce.
->
-> 1. `matrix(c(4, 1, 9, 5, 10, 7), nrow = 3)`
-> 2. `matrix(c(4, 9, 10, 1, 5, 7), ncol = 2, byrow = TRUE)`
-> 3. `matrix(c(4, 9, 10, 1, 5, 7), nrow = 2)`
-> 4. `matrix(c(4, 1, 9, 5, 10, 7), ncol = 2, byrow = TRUE)`
->
-> > ## Solution to Challenge 7
-> >
-> > Consider the R output of the matrix below:
-> > ```{r, echo=FALSE}
-> > matrix(c(4, 1, 9, 5, 10, 7), ncol = 2, byrow = TRUE)
-> > ```
-> > What was the correct command used to write this matrix? Examine
-> > each command and try to figure out the correct one before typing them.
-> > Think about what matrices the other commands will produce.
-> > ```{r, eval=FALSE}
-> > matrix(c(4, 1, 9, 5, 10, 7), ncol = 2, byrow = TRUE)
-> > ```
-> {: .solution}
-{: .challenge}

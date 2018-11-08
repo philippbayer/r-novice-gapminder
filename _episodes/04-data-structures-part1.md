@@ -27,12 +27,13 @@ making a toy dataset in your `data/` directory, called `feline-data.csv`:
 
 
 ~~~
-cats <- data.frame(coat = c("calico", "black", "tabby"), 
-                    weight = c(2.1, 5.0,3.2), 
-                    likes_string = c(1, 0, 1))
-write.csv(x = cats, file = "data/feline-data.csv", row.names = FALSE)
+cats_orig <- tibble(coat = factor(c("calico", "black", "tabby")),
+                     weight = c(2.1, 5.0, 3.2),
+                   likes_string = c(1, 0, 1))
+write_csv(x = cats, path = 'data/feline_data.csv')
 ~~~
 {: .language-r}
+
 The contents of the new file, `feline-data.csv`:
 
 ~~~
@@ -53,7 +54,25 @@ We can load this into R via the following:
 
 
 ~~~
-cats <- read.csv(file = "data/feline-data.csv")
+cats <- read_csv('data/feline_data.csv')
+~~~
+{: .language-r}
+
+
+
+~~~
+Parsed with column specification:
+cols(
+  coat = col_character(),
+  weight = col_double(),
+  likes_string = col_integer()
+)
+~~~
+{: .output}
+
+
+
+~~~
 cats
 ~~~
 {: .language-r}
@@ -61,22 +80,24 @@ cats
 
 
 ~~~
-    coat weight likes_string
+# A tibble: 3 x 3
+  coat   weight likes_string
+  <chr>   <dbl>        <int>
 1 calico    2.1            1
-2  black    5.0            0
-3  tabby    3.2            1
+2 black     5              0
+3 tabby     3.2            1
 ~~~
 {: .output}
 
-The `read.table` function is used for reading in tabular data stored in a text
+The `read_delim` function is used for reading in tabular data stored in a text
 file where the columns of data are separated by punctuation characters such as
 CSV files (csv = comma-separated values). Tabs and commas are the most common
 punctuation characters used to separate or delimit data points in csv files. 
-For convenience R provides 2 other versions of `read.table`. These are: `read.csv`
-for files where the data are separated with commas and `read.delim` for files
-where the data are separated with tabs. Of these three functions `read.csv` is
+For convenience tidyverse provides 2 other versions of `read_delim`. These are: `read_csv`
+for files where the data are separated with commas and `read_delim` for files
+where the data are separated with tabs. Of these three functions `read_csv` is
 the most commonly used.  If needed it is possible to override the default 
-delimiting punctuation marks for both `read.csv` and `read.delim`.
+delimiting punctuation marks for both `read_csv` and `read_delim`.
 
 
 We can begin exploring our dataset right away, pulling out columns by specifying
@@ -105,8 +126,7 @@ cats$coat
 
 
 ~~~
-[1] calico black  tabby 
-Levels: black calico tabby
+[1] "calico" "black"  "tabby" 
 ~~~
 {: .output}
 
@@ -151,17 +171,9 @@ cats$weight + cats$coat
 
 
 ~~~
-Warning in Ops.factor(cats$weight, cats$coat): '+' not meaningful for
-factors
+Error in cats$weight + cats$coat: non-numeric argument to binary operator
 ~~~
 {: .error}
-
-
-
-~~~
-[1] NA NA NA
-~~~
-{: .output}
 
 Understanding what happened here is key to successfully analyzing data in R.
 
@@ -285,7 +297,25 @@ Load the new cats data like before, and check what type of data we find in the
 
 
 ~~~
-cats <- read.csv(file="data/feline-data_v2.csv")
+cats <- read_csv(file="data/feline-data_v2.csv")
+~~~
+{: .language-r}
+
+
+
+~~~
+Parsed with column specification:
+cols(
+  coat = col_character(),
+  weight = col_character(),
+  likes_string = col_integer()
+)
+~~~
+{: .output}
+
+
+
+~~~
 typeof(cats$weight)
 ~~~
 {: .language-r}
@@ -293,7 +323,7 @@ typeof(cats$weight)
 
 
 ~~~
-[1] "integer"
+[1] "character"
 ~~~
 {: .output}
 
@@ -309,16 +339,9 @@ cats$weight + 2
 
 
 ~~~
-Warning in Ops.factor(cats$weight, 2): '+' not meaningful for factors
+Error in cats$weight + 2: non-numeric argument to binary operator
 ~~~
 {: .error}
-
-
-
-~~~
-[1] NA NA NA NA
-~~~
-{: .output}
 
 What happened? When R reads a csv file into one of these tables, it insists that
 everything in a column be the same basic type; if it can't understand
@@ -328,7 +351,7 @@ double. The table that R loaded our cats data into is something called a
 structure* - that is, a structure which R knows how to build out of the basic
 data types.
 
-We can see that it is a *data.frame* by calling the `class` function on it:
+We can see that it is a *tibble* by calling the `class` function on it:
 
 
 ~~~
@@ -339,7 +362,7 @@ class(cats)
 
 
 ~~~
-[1] "data.frame"
+[1] "tbl_df"     "tbl"        "data.frame"
 ~~~
 {: .output}
 
@@ -360,7 +383,7 @@ And back in RStudio:
 
 
 ~~~
-cats <- read.csv(file="data/feline-data.csv")
+cats <- read_csv(file="data/feline-data.csv")
 ~~~
 {: .language-r}
 
@@ -812,9 +835,9 @@ names(my_example)
 {: .challenge}
 
 
-## Data Frames
+## Tibbles
 
-We said that columns in data.frames were vectors:
+We said that columns in tibbles were vectors:
 
 
 ~~~
@@ -957,40 +980,6 @@ typeof(CATegories)
 ~~~
 {: .output}
 
-> ## Challenge 2
->
-> Is there a factor in our `cats` data.frame? what is its name?
-> Try using `?read.csv` to figure out how to keep text columns as character
-> vectors instead of factors; then write a command or two to show that the factor
-> in `cats` is actually a character vector when loaded in this way.
->
-> > ## Solution to Challenge 2
-> >
-> > One solution is use the argument `stringAsFactors`:
-> >
-> > 
-> > ~~~
-> > cats <- read.csv(file="data/feline-data.csv", stringsAsFactors=FALSE)
-> > str(cats$coat)
-> > ~~~
-> > {: .language-r}
-> >
-> > Another solution is use the argument `colClasses`
-> > that allow finer control.
-> >
-> > 
-> > ~~~
-> > cats <- read.csv(file="data/feline-data.csv", colClasses=c(NA, NA, "character"))
-> > str(cats$coat)
-> > ~~~
-> > {: .language-r}
-> >
-> > Note: new students find the help files difficult to understand; make sure to let them know
-> > that this is typical, and encourage them to take their best guess based on semantic meaning,
-> > even if they aren't sure.
-> {: .solution}
-{: .challenge}
-
 In modelling functions, it's important to know what the baseline levels are. This
 is assumed to be the first factor, but by default factors are labelled in
 alphabetical order. You can change this by specifying the levels:
@@ -1010,7 +999,7 @@ str(factor_ordering_example)
 ~~~
 {: .output}
 
-In this case, we've explicitly told R that "control" should represented by 1, and
+In this case, we've explicitly told R that "control" should be represented by 1, and
 "case" by 2. This designation can be very important for interpreting the
 results of statistical models!
 
@@ -1115,8 +1104,12 @@ cats[,1]
 
 
 ~~~
-[1] calico black  tabby 
-Levels: black calico tabby
+# A tibble: 3 x 1
+  coat  
+  <fct> 
+1 calico
+2 black 
+3 tabby 
 ~~~
 {: .output}
 
@@ -1130,7 +1123,7 @@ typeof(cats[,1])
 
 
 ~~~
-[1] "integer"
+[1] "list"
 ~~~
 {: .output}
 
@@ -1144,7 +1137,8 @@ str(cats[,1])
 
 
 ~~~
- Factor w/ 3 levels "black","calico",..: 2 1 3
+Classes 'tbl_df', 'tbl' and 'data.frame':	3 obs. of  1 variable:
+ $ coat: Factor w/ 3 levels "black","calico",..: 2 1 3
 ~~~
 {: .output}
 
@@ -1160,8 +1154,10 @@ cats[1,]
 
 
 ~~~
-    coat weight likes_string
-1 calico    2.1         TRUE
+# A tibble: 1 x 3
+  coat   weight likes_string
+  <fct>   <dbl> <lgl>       
+1 calico    2.1 TRUE        
 ~~~
 {: .output}
 
@@ -1189,7 +1185,7 @@ str(cats[1,])
 
 
 ~~~
-'data.frame':	1 obs. of  3 variables:
+Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
  $ coat        : Factor w/ 3 levels "black","calico",..: 2
  $ weight      : num 2.1
  $ likes_string: logi TRUE
@@ -1223,10 +1219,12 @@ str(cats[1,])
 > > 
 > > 
 > > ~~~
-> >     coat
+> > # A tibble: 3 x 1
+> >   coat  
+> >   <fct> 
 > > 1 calico
-> > 2  black
-> > 3  tabby
+> > 2 black 
+> > 3 tabby 
 > > ~~~
 > > {: .output}
 > > We can think of a data frame as a list of vectors. The single brace `[1]`
@@ -1271,10 +1269,12 @@ str(cats[1,])
 > > 
 > > 
 > > ~~~
-> >     coat
+> > # A tibble: 3 x 1
+> >   coat  
+> >   <fct> 
 > > 1 calico
-> > 2  black
-> > 3  tabby
+> > 2 black 
+> > 3 tabby 
 > > ~~~
 > > {: .output}
 > > Here we are using a single brace `["coat"]` replacing the index number with
@@ -1288,8 +1288,10 @@ str(cats[1,])
 > > 
 > > 
 > > ~~~
-> > [1] calico
-> > Levels: black calico tabby
+> > # A tibble: 1 x 1
+> >   coat  
+> >   <fct> 
+> > 1 calico
 > > ~~~
 > > {: .output}
 > > This example uses a single brace, but this time we provide row and column
@@ -1305,8 +1307,12 @@ str(cats[1,])
 > > 
 > > 
 > > ~~~
-> > [1] calico black  tabby 
-> > Levels: black calico tabby
+> > # A tibble: 3 x 1
+> >   coat  
+> >   <fct> 
+> > 1 calico
+> > 2 black 
+> > 3 tabby 
 > > ~~~
 > > {: .output}
 > > Like the previous example we use single braces and provide row and column
@@ -1321,8 +1327,10 @@ str(cats[1,])
 > > 
 > > 
 > > ~~~
-> >     coat weight likes_string
-> > 1 calico    2.1         TRUE
+> > # A tibble: 1 x 3
+> >   coat   weight likes_string
+> >   <fct>   <dbl> <lgl>       
+> > 1 calico    2.1 TRUE        
 > > ~~~
 > > {: .output}
 > > Again we use the single brace with row and column coordinates. The column
@@ -1330,172 +1338,6 @@ str(cats[1,])
 > values in the first row.
 > {: .solution}
 {: .challenge}
-
-## Matrices
-
-Last but not least is the matrix. We can declare a matrix full of zeros:
-
-
-~~~
-matrix_example <- matrix(0, ncol=6, nrow=3)
-matrix_example
-~~~
-{: .language-r}
-
-
-
-~~~
-     [,1] [,2] [,3] [,4] [,5] [,6]
-[1,]    0    0    0    0    0    0
-[2,]    0    0    0    0    0    0
-[3,]    0    0    0    0    0    0
-~~~
-{: .output}
-
-And similar to other data structures, we can ask things about our matrix:
-
-
-~~~
-class(matrix_example)
-~~~
-{: .language-r}
-
-
-
-~~~
-[1] "matrix"
-~~~
-{: .output}
-
-
-
-~~~
-typeof(matrix_example)
-~~~
-{: .language-r}
-
-
-
-~~~
-[1] "double"
-~~~
-{: .output}
-
-
-
-~~~
-str(matrix_example)
-~~~
-{: .language-r}
-
-
-
-~~~
- num [1:3, 1:6] 0 0 0 0 0 0 0 0 0 0 ...
-~~~
-{: .output}
-
-
-
-~~~
-dim(matrix_example)
-~~~
-{: .language-r}
-
-
-
-~~~
-[1] 3 6
-~~~
-{: .output}
-
-
-
-~~~
-nrow(matrix_example)
-~~~
-{: .language-r}
-
-
-
-~~~
-[1] 3
-~~~
-{: .output}
-
-
-
-~~~
-ncol(matrix_example)
-~~~
-{: .language-r}
-
-
-
-~~~
-[1] 6
-~~~
-{: .output}
-
-> ## Challenge 4
->
-> What do you think will be the result of
-> `length(matrix_example)`?
-> Try it.
-> Were you right? Why / why not?
->
-> > ## Solution to Challenge 4
-> >
-> > What do you think will be the result of
-> > `length(matrix_example)`?
-> >
-> > 
-> > ~~~
-> > matrix_example <- matrix(0, ncol=6, nrow=3)
-> > length(matrix_example)
-> > ~~~
-> > {: .language-r}
-> > 
-> > 
-> > 
-> > ~~~
-> > [1] 18
-> > ~~~
-> > {: .output}
-> >
-> > Because a matrix is a vector with added dimension attributes, `length`
-> > gives you the total number of elements in the matrix.
-> {: .solution}
-{: .challenge}
-
-
-> ## Challenge 5
->
-> Make another matrix, this time containing the numbers 1:50,
-> with 5 columns and 10 rows.
-> Did the `matrix` function fill your matrix by column, or by
-> row, as its default behaviour?
-> See if you can figure out how to change this.
-> (hint: read the documentation for `matrix`!)
->
-> > ## Solution to Challenge 5
-> >
-> > Make another matrix, this time containing the numbers 1:50,
-> > with 5 columns and 10 rows.
-> > Did the `matrix` function fill your matrix by column, or by
-> > row, as its default behaviour?
-> > See if you can figure out how to change this.
-> > (hint: read the documentation for `matrix`!)
-> >
-> > 
-> > ~~~
-> > x <- matrix(1:50, ncol=5, nrow=10)
-> > x <- matrix(1:50, ncol=5, nrow=10, byrow = TRUE) # to fill by row
-> > ~~~
-> > {: .language-r}
-> {: .solution}
-{: .challenge}
-
 
 > ## Challenge 6
 >  Create a list of length two containing a character vector for each of the sections in this part of the workshop:
@@ -1521,45 +1363,3 @@ ncol(matrix_example)
 > {: .solution}
 {: .challenge}
 
-
-> ## Challenge 7
->
-> Consider the R output of the matrix below:
-> 
-> ~~~
->      [,1] [,2]
-> [1,]    4    1
-> [2,]    9    5
-> [3,]   10    7
-> ~~~
-> {: .output}
-> What was the correct command used to write this matrix? Examine
-> each command and try to figure out the correct one before typing them.
-> Think about what matrices the other commands will produce.
->
-> 1. `matrix(c(4, 1, 9, 5, 10, 7), nrow = 3)`
-> 2. `matrix(c(4, 9, 10, 1, 5, 7), ncol = 2, byrow = TRUE)`
-> 3. `matrix(c(4, 9, 10, 1, 5, 7), nrow = 2)`
-> 4. `matrix(c(4, 1, 9, 5, 10, 7), ncol = 2, byrow = TRUE)`
->
-> > ## Solution to Challenge 7
-> >
-> > Consider the R output of the matrix below:
-> > 
-> > ~~~
-> >      [,1] [,2]
-> > [1,]    4    1
-> > [2,]    9    5
-> > [3,]   10    7
-> > ~~~
-> > {: .output}
-> > What was the correct command used to write this matrix? Examine
-> > each command and try to figure out the correct one before typing them.
-> > Think about what matrices the other commands will produce.
-> > 
-> > ~~~
-> > matrix(c(4, 1, 9, 5, 10, 7), ncol = 2, byrow = TRUE)
-> > ~~~
-> > {: .language-r}
-> {: .solution}
-{: .challenge}

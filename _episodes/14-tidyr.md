@@ -276,25 +276,8 @@ gap_long$year <- as.integer(gap_long$year)
 > >
 > >
 > >~~~
-> ># A tibble: 15 x 3
-> ># Groups:   continent [?]
-> >   continent obs_type       means
-> >   <chr>     <chr>          <dbl>
-> > 1 Africa    gdpPercap     2194. 
-> > 2 Africa    lifeExp         48.9
-> > 3 Africa    pop        9916003. 
-> > 4 Americas  gdpPercap     7136. 
-> > 5 Americas  lifeExp         64.7
-> > 6 Americas  pop       24504795. 
-> > 7 Asia      gdpPercap     7902. 
-> > 8 Asia      lifeExp         60.1
-> > 9 Asia      pop       77038722. 
-> >10 Europe    gdpPercap    14469. 
-> >11 Europe    lifeExp         71.9
-> >12 Europe    pop       17169765. 
-> >13 Oceania   gdpPercap    18622. 
-> >14 Oceania   lifeExp         74.3
-> >15 Oceania   pop        8874672. 
+> >    means
+> >1 9869496
 > >~~~
 > >{: .output}
 > {: .solution}
