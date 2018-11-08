@@ -25,6 +25,7 @@ source: Rmd
 
 ```{r, include=FALSE}
 source("../bin/chunk-options.R")
+library(tidyverse)
 knitr_fig_path("05-")
 ```
 
@@ -40,7 +41,8 @@ data are consistent in type throughout the columns. As such, if we want to add a
 new column, we can start by making a new vector:
 
 ```{r, echo = FALSE}
-cats <- read.csv("data/feline-data.csv")
+cats <- read_csv("data/feline-data.csv")
+cats
 ```
 
 ```{r}
@@ -83,40 +85,16 @@ Now how about adding rows? We already know that the rows of a
 data frame are lists:
 
 ```{r}
-newRow <- list("tortoiseshell", 3.3, TRUE, 9)
+newRow <- list("tortoiseshell", 3.3, NA, 9)
 cats <- rbind(cats, newRow)
+cats
 ```
 
-## Factors
-
-Here is another thing to look out for: in a `factor`, each different value represents what is called a `level`. In our case, the `factor` "coat" has 3 levels: "black", "calico", and "tabby". R will only accept values that match one of the levels. If you add a new value, it will become `NA`.
-
-The warning is telling us that we unsuccessfully added "tortoiseshell" to our
-*coat* factor, but 3.3 (a numeric), TRUE (a logical), and 9 (a numeric) were
-successfully added to *weight*, *likes_string*, and *age*, respectively, since
-those variables are not factors. To successfully add a cat with a
-"tortoiseshell" *coat*, add "tortoiseshell" as a *level* of the factor:
-
-```{r}
-levels(cats$coat)
-levels(cats$coat) <- c(levels(cats$coat), "tortoiseshell")
-cats <- rbind(cats, list("tortoiseshell", 3.3, TRUE, 9))
-```
-
-Alternatively, we can change a factor into a character vector; we lose the
-handy categories of the factor, but we can subsequently add any word we want to the
-column without babysitting the factor levels:
-
-```{r}
-str(cats)
-cats$coat <- as.character(cats$coat)
-str(cats)
-```
 
 > ## Challenge 1
 > Let's imagine that 1 cat year is equivalent to 7 human years. 
 > 1. Create a vector called `human_age` by multiplying `cats$age` by 7.
-> 2. Convert `human_age` to a factor.
+> 2. Convert `human_age` to a factor using `as.factor()` or `factor()`.
 > 3. Convert `human_age` back to a numeric vector using the `as.numeric()` function. Now divide it by 7 to get the original ages back. Explain what happened.
 >
 > > ## Solution to Challenge 1
@@ -186,13 +164,7 @@ together with `rbind`:
 cats <- rbind(cats, cats)
 cats
 ```
-But now the row names are unnecessarily complicated. We can remove the rownames,
-and R will automatically re-name them sequentially:
 
-```{r}
-rownames(cats) <- NULL
-cats
-```
 
 > ## Challenge 2
 >
@@ -230,7 +202,7 @@ now let's use those skills to digest a more realistic dataset. Let's read in the
 `gapminder` dataset that we downloaded previously:
 
 ```{r}
-gapminder <- read.csv("data/gapminder_data.csv")
+gapminder <- read_csv("data/gapminder_data.csv")
 ```
 
 > ## Miscellaneous Tips
