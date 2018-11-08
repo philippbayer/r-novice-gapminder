@@ -39,6 +39,41 @@ data are consistent in type throughout the columns. As such, if we want to add a
 new column, we can start by making a new vector:
 
 
+~~~
+cats <- read_csv("data/feline-data.csv")
+~~~
+{: .language-r}
+
+
+
+~~~
+Parsed with column specification:
+cols(
+  coat = col_character(),
+  weight = col_double(),
+  likes_string = col_integer()
+)
+~~~
+{: .output}
+
+
+
+~~~
+cats
+~~~
+{: .language-r}
+
+
+
+~~~
+# A tibble: 3 x 3
+  coat   weight likes_string
+  <chr>   <dbl>        <int>
+1 calico    2.1            1
+2 black     5              0
+3 tabby     3.2            1
+~~~
+{: .output}
 
 
 ~~~
@@ -50,10 +85,12 @@ cats
 
 
 ~~~
-    coat weight likes_string
+# A tibble: 3 x 3
+  coat   weight likes_string
+  <chr>   <dbl>        <int>
 1 calico    2.1            1
-2  black    5.0            0
-3  tabby    3.2            1
+2 black     5              0
+3 tabby     3.2            1
 ~~~
 {: .output}
 
@@ -150,94 +187,28 @@ data frame are lists:
 
 
 ~~~
-newRow <- list("tortoiseshell", 3.3, TRUE, 9)
+newRow <- list("tortoiseshell", 3.3, NA, 9)
 cats <- rbind(cats, newRow)
+cats
 ~~~
 {: .language-r}
 
 
 
 ~~~
-Warning in `[<-.factor`(`*tmp*`, ri, value = "tortoiseshell"): invalid
-factor level, NA generated
-~~~
-{: .error}
-
-## Factors
-
-Here is another thing to look out for: in a `factor`, each different value represents what is called a `level`. In our case, the `factor` "coat" has 3 levels: "black", "calico", and "tabby". R will only accept values that match one of the levels. If you add a new value, it will become `NA`.
-
-The warning is telling us that we unsuccessfully added "tortoiseshell" to our
-*coat* factor, but 3.3 (a numeric), TRUE (a logical), and 9 (a numeric) were
-successfully added to *weight*, *likes_string*, and *age*, respectively, since
-those variables are not factors. To successfully add a cat with a
-"tortoiseshell" *coat*, add "tortoiseshell" as a *level* of the factor:
-
-
-~~~
-levels(cats$coat)
-~~~
-{: .language-r}
-
-
-
-~~~
-[1] "black"  "calico" "tabby" 
+           coat weight likes_string age
+1        calico    2.1            1   2
+2         black    5.0            0   3
+3         tabby    3.2            1   5
+4 tortoiseshell    3.3           NA   9
 ~~~
 {: .output}
 
-
-
-~~~
-levels(cats$coat) <- c(levels(cats$coat), "tortoiseshell")
-cats <- rbind(cats, list("tortoiseshell", 3.3, TRUE, 9))
-~~~
-{: .language-r}
-
-Alternatively, we can change a factor into a character vector; we lose the
-handy categories of the factor, but we can subsequently add any word we want to the
-column without babysitting the factor levels:
-
-
-~~~
-str(cats)
-~~~
-{: .language-r}
-
-
-
-~~~
-'data.frame':	5 obs. of  4 variables:
- $ coat        : Factor w/ 4 levels "black","calico",..: 2 1 3 NA 4
- $ weight      : num  2.1 5 3.2 3.3 3.3
- $ likes_string: int  1 0 1 1 1
- $ age         : num  2 3 5 9 9
-~~~
-{: .output}
-
-
-
-~~~
-cats$coat <- as.character(cats$coat)
-str(cats)
-~~~
-{: .language-r}
-
-
-
-~~~
-'data.frame':	5 obs. of  4 variables:
- $ coat        : chr  "calico" "black" "tabby" NA ...
- $ weight      : num  2.1 5 3.2 3.3 3.3
- $ likes_string: int  1 0 1 1 1
- $ age         : num  2 3 5 9 9
-~~~
-{: .output}
 
 > ## Challenge 1
 > Let's imagine that 1 cat year is equivalent to 7 human years. 
 > 1. Create a vector called `human_age` by multiplying `cats$age` by 7.
-> 2. Convert `human_age` to a factor.
+> 2. Convert `human_age` to a factor using `as.factor()` or `factor()`.
 > 3. Convert `human_age` back to a numeric vector using the `as.numeric()` function. Now divide it by 7 to get the original ages back. Explain what happened.
 >
 > > ## Solution to Challenge 1
@@ -266,8 +237,7 @@ cats
 1        calico    2.1            1   2
 2         black    5.0            0   3
 3         tabby    3.2            1   5
-4          <NA>    3.3            1   9
-5 tortoiseshell    3.3            1   9
+4 tortoiseshell    3.3           NA   9
 ~~~
 {: .output}
 
@@ -282,11 +252,10 @@ cats[-4, ]
 
 
 ~~~
-           coat weight likes_string age
-1        calico    2.1            1   2
-2         black    5.0            0   3
-3         tabby    3.2            1   5
-5 tortoiseshell    3.3            1   9
+    coat weight likes_string age
+1 calico    2.1            1   2
+2  black    5.0            0   3
+3  tabby    3.2            1   5
 ~~~
 {: .output}
 
@@ -306,11 +275,10 @@ na.omit(cats)
 
 
 ~~~
-           coat weight likes_string age
-1        calico    2.1            1   2
-2         black    5.0            0   3
-3         tabby    3.2            1   5
-5 tortoiseshell    3.3            1   9
+    coat weight likes_string age
+1 calico    2.1            1   2
+2  black    5.0            0   3
+3  tabby    3.2            1   5
 ~~~
 {: .output}
 
@@ -335,11 +303,10 @@ cats[,-4]
 
 
 ~~~
-           coat weight likes_string
-1        calico    2.1            1
-2         black    5.0            0
-3         tabby    3.2            1
-5 tortoiseshell    3.3            1
+    coat weight likes_string
+1 calico    2.1            1
+2  black    5.0            0
+3  tabby    3.2            1
 ~~~
 {: .output}
 
@@ -357,11 +324,10 @@ cats[,!drop]
 
 
 ~~~
-           coat weight likes_string
-1        calico    2.1            1
-2         black    5.0            0
-3         tabby    3.2            1
-5 tortoiseshell    3.3            1
+    coat weight likes_string
+1 calico    2.1            1
+2  black    5.0            0
+3  tabby    3.2            1
 ~~~
 {: .output}
 
@@ -381,41 +347,16 @@ cats
 
 
 ~~~
-            coat weight likes_string age
-1         calico    2.1            1   2
-2          black    5.0            0   3
-3          tabby    3.2            1   5
-5  tortoiseshell    3.3            1   9
-11        calico    2.1            1   2
-21         black    5.0            0   3
-31         tabby    3.2            1   5
-51 tortoiseshell    3.3            1   9
+    coat weight likes_string age
+1 calico    2.1            1   2
+2  black    5.0            0   3
+3  tabby    3.2            1   5
+4 calico    2.1            1   2
+5  black    5.0            0   3
+6  tabby    3.2            1   5
 ~~~
 {: .output}
-But now the row names are unnecessarily complicated. We can remove the rownames,
-and R will automatically re-name them sequentially:
 
-
-~~~
-rownames(cats) <- NULL
-cats
-~~~
-{: .language-r}
-
-
-
-~~~
-           coat weight likes_string age
-1        calico    2.1            1   2
-2         black    5.0            0   3
-3         tabby    3.2            1   5
-4 tortoiseshell    3.3            1   9
-5        calico    2.1            1   2
-6         black    5.0            0   3
-7         tabby    3.2            1   5
-8 tortoiseshell    3.3            1   9
-~~~
-{: .output}
 
 > ## Challenge 2
 >
@@ -458,9 +399,24 @@ now let's use those skills to digest a more realistic dataset. Let's read in the
 
 
 ~~~
-gapminder <- read.csv("data/gapminder_data.csv")
+gapminder <- read_csv("data/gapminder_data.csv")
 ~~~
 {: .language-r}
+
+
+
+~~~
+Parsed with column specification:
+cols(
+  country = col_character(),
+  year = col_integer(),
+  pop = col_double(),
+  continent = col_character(),
+  lifeExp = col_double(),
+  gdpPercap = col_double()
+)
+~~~
+{: .output}
 
 > ## Miscellaneous Tips
 >
@@ -499,13 +455,30 @@ str(gapminder)
 
 
 ~~~
-'data.frame':	1704 obs. of  6 variables:
- $ country  : Factor w/ 142 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+Classes 'tbl_df', 'tbl' and 'data.frame':	1704 obs. of  6 variables:
+ $ country  : chr  "Afghanistan" "Afghanistan" "Afghanistan" "Afghanistan" ...
  $ year     : int  1952 1957 1962 1967 1972 1977 1982 1987 1992 1997 ...
  $ pop      : num  8425333 9240934 10267083 11537966 13079460 ...
- $ continent: Factor w/ 5 levels "Africa","Americas",..: 3 3 3 3 3 3 3 3 3 3 ...
+ $ continent: chr  "Asia" "Asia" "Asia" "Asia" ...
  $ lifeExp  : num  28.8 30.3 32 34 36.1 ...
  $ gdpPercap: num  779 821 853 836 740 ...
+ - attr(*, "spec")=List of 2
+  ..$ cols   :List of 6
+  .. ..$ country  : list()
+  .. .. ..- attr(*, "class")= chr  "collector_character" "collector"
+  .. ..$ year     : list()
+  .. .. ..- attr(*, "class")= chr  "collector_integer" "collector"
+  .. ..$ pop      : list()
+  .. .. ..- attr(*, "class")= chr  "collector_double" "collector"
+  .. ..$ continent: list()
+  .. .. ..- attr(*, "class")= chr  "collector_character" "collector"
+  .. ..$ lifeExp  : list()
+  .. .. ..- attr(*, "class")= chr  "collector_double" "collector"
+  .. ..$ gdpPercap: list()
+  .. .. ..- attr(*, "class")= chr  "collector_double" "collector"
+  ..$ default: list()
+  .. ..- attr(*, "class")= chr  "collector_guess" "collector"
+  ..- attr(*, "class")= chr "col_spec"
 ~~~
 {: .output}
 
@@ -534,7 +507,7 @@ typeof(gapminder$country)
 
 
 ~~~
-[1] "integer"
+[1] "character"
 ~~~
 {: .output}
 
@@ -548,7 +521,7 @@ str(gapminder$country)
 
 
 ~~~
- Factor w/ 142 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+ chr [1:1704] "Afghanistan" "Afghanistan" "Afghanistan" "Afghanistan" ...
 ~~~
 {: .output}
 
@@ -666,13 +639,15 @@ head(gapminder)
 
 
 ~~~
-      country year      pop continent lifeExp gdpPercap
-1 Afghanistan 1952  8425333      Asia  28.801  779.4453
-2 Afghanistan 1957  9240934      Asia  30.332  820.8530
-3 Afghanistan 1962 10267083      Asia  31.997  853.1007
-4 Afghanistan 1967 11537966      Asia  34.020  836.1971
-5 Afghanistan 1972 13079460      Asia  36.088  739.9811
-6 Afghanistan 1977 14880372      Asia  38.438  786.1134
+# A tibble: 6 x 6
+  country      year      pop continent lifeExp gdpPercap
+  <chr>       <int>    <dbl> <chr>       <dbl>     <dbl>
+1 Afghanistan  1952  8425333 Asia         28.8      779.
+2 Afghanistan  1957  9240934 Asia         30.3      821.
+3 Afghanistan  1962 10267083 Asia         32.0      853.
+4 Afghanistan  1967 11537966 Asia         34.0      836.
+5 Afghanistan  1972 13079460 Asia         36.1      740.
+6 Afghanistan  1977 14880372 Asia         38.4      786.
 ~~~
 {: .output}
 
