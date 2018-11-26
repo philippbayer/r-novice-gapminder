@@ -161,15 +161,6 @@ The following objects are masked from 'package:dplyr':
 ~~~
 {: .output}
 
-
-
-~~~
-The following object is masked from 'package:purrr':
-
-    compact
-~~~
-{: .output}
-
 Plyr has functions for operating on `lists`, `data.frames` and `arrays`
 (matrices, or n-dimensional vectors). Each function performs:
 
