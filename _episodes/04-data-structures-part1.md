@@ -27,10 +27,10 @@ making a toy dataset in your `data/` directory, called `feline-data.csv`:
 
 
 ~~~
-cats_orig <- tibble(coat = factor(c("calico", "black", "tabby")),
-                     weight = c(2.1, 5.0, 3.2),
-                   likes_string = c(1, 0, 1))
-write_csv(x = cats, path = 'data/feline_data.csv')
+cats <- data.frame(coat = c("calico", "black", "tabby"),
+                    weight = c(2.1, 5.0,3.2),
+                    likes_string = c(1, 0, 1))
+write.csv(x = cats, file = "data/feline-data.csv", row.names = FALSE)
 ~~~
 {: .language-r}
 
@@ -54,25 +54,7 @@ We can load this into R via the following:
 
 
 ~~~
-cats <- read_csv('data/feline_data.csv')
-~~~
-{: .language-r}
-
-
-
-~~~
-Parsed with column specification:
-cols(
-  coat = col_character(),
-  weight = col_double(),
-  likes_string = col_integer()
-)
-~~~
-{: .output}
-
-
-
-~~~
+cats <- read.csv(file = "data/feline-data.csv")
 cats
 ~~~
 {: .language-r}
@@ -80,24 +62,22 @@ cats
 
 
 ~~~
-# A tibble: 3 x 3
-  coat   weight likes_string
-  <chr>   <dbl>        <int>
+    coat weight likes_string
 1 calico    2.1            1
-2 black     5              0
-3 tabby     3.2            1
+2  black    5.0            0
+3  tabby    3.2            1
 ~~~
 {: .output}
 
-The `read_delim` function is used for reading in tabular data stored in a text
+The `read.table` function is used for reading in tabular data stored in a text
 file where the columns of data are separated by punctuation characters such as
 CSV files (csv = comma-separated values). Tabs and commas are the most common
-punctuation characters used to separate or delimit data points in csv files. 
-For convenience tidyverse provides 2 other versions of `read_delim`. These are: `read_csv`
-for files where the data are separated with commas and `read_delim` for files
-where the data are separated with tabs. Of these three functions `read_csv` is
-the most commonly used.  If needed it is possible to override the default 
-delimiting punctuation marks for both `read_csv` and `read_delim`.
+punctuation characters used to separate or delimit data points in csv files.
+For convenience R provides 2 other versions of `read.table`. These are: `read.csv`
+for files where the data are separated with commas and `read.delim` for files
+where the data are separated with tabs. Of these three functions `read.csv` is
+the most commonly used.  If needed it is possible to override the default
+delimiting punctuation marks for both `read.csv` and `read.delim`.
 
 
 We can begin exploring our dataset right away, pulling out columns by specifying
@@ -126,7 +106,8 @@ cats$coat
 
 
 ~~~
-[1] "calico" "black"  "tabby" 
+[1] calico black  tabby 
+Levels: black calico tabby
 ~~~
 {: .output}
 
@@ -171,9 +152,17 @@ cats$weight + cats$coat
 
 
 ~~~
-Error in cats$weight + cats$coat: non-numeric argument to binary operator
+Warning in Ops.factor(cats$weight, cats$coat): '+' not meaningful for
+factors
 ~~~
 {: .error}
+
+
+
+~~~
+[1] NA NA NA
+~~~
+{: .output}
 
 Understanding what happened here is key to successfully analyzing data in R.
 
@@ -297,25 +286,7 @@ Load the new cats data like before, and check what type of data we find in the
 
 
 ~~~
-cats <- read_csv(file="data/feline-data_v2.csv")
-~~~
-{: .language-r}
-
-
-
-~~~
-Parsed with column specification:
-cols(
-  coat = col_character(),
-  weight = col_character(),
-  likes_string = col_integer()
-)
-~~~
-{: .output}
-
-
-
-~~~
+cats <- read.csv(file="data/feline-data_v2.csv")
 typeof(cats$weight)
 ~~~
 {: .language-r}
@@ -323,7 +294,7 @@ typeof(cats$weight)
 
 
 ~~~
-[1] "character"
+[1] "integer"
 ~~~
 {: .output}
 
@@ -339,9 +310,16 @@ cats$weight + 2
 
 
 ~~~
-Error in cats$weight + 2: non-numeric argument to binary operator
+Warning in Ops.factor(cats$weight, 2): '+' not meaningful for factors
 ~~~
 {: .error}
+
+
+
+~~~
+[1] NA NA NA NA
+~~~
+{: .output}
 
 What happened? When R reads a csv file into one of these tables, it insists that
 everything in a column be the same basic type; if it can't understand
@@ -351,7 +329,7 @@ double. The table that R loaded our cats data into is something called a
 structure* - that is, a structure which R knows how to build out of the basic
 data types.
 
-We can see that it is a *tibble* by calling the `class` function on it:
+We can see that it is a *data.frame* by calling the `class` function on it:
 
 
 ~~~
@@ -362,7 +340,7 @@ class(cats)
 
 
 ~~~
-[1] "tbl_df"     "tbl"        "data.frame"
+[1] "data.frame"
 ~~~
 {: .output}
 
@@ -383,7 +361,7 @@ And back in RStudio:
 
 
 ~~~
-cats <- read_csv(file="data/feline-data.csv")
+cats <- read.csv(file="data/feline-data.csv")
 ~~~
 {: .language-r}
 
@@ -835,9 +813,9 @@ names(my_example)
 {: .challenge}
 
 
-## Tibbles
+## Data Frames
 
-We said that columns in tibbles were vectors:
+We said that columns in data frames were vectors:
 
 
 ~~~
@@ -1104,12 +1082,8 @@ cats[,1]
 
 
 ~~~
-# A tibble: 3 x 1
-  coat  
-  <fct> 
-1 calico
-2 black 
-3 tabby 
+[1] calico black  tabby 
+Levels: black calico tabby
 ~~~
 {: .output}
 
@@ -1123,7 +1097,7 @@ typeof(cats[,1])
 
 
 ~~~
-[1] "list"
+[1] "integer"
 ~~~
 {: .output}
 
@@ -1137,8 +1111,7 @@ str(cats[,1])
 
 
 ~~~
-Classes 'tbl_df', 'tbl' and 'data.frame':	3 obs. of  1 variable:
- $ coat: Factor w/ 3 levels "black","calico",..: 2 1 3
+ Factor w/ 3 levels "black","calico",..: 2 1 3
 ~~~
 {: .output}
 
@@ -1154,10 +1127,8 @@ cats[1,]
 
 
 ~~~
-# A tibble: 1 x 3
-  coat   weight likes_string
-  <fct>   <dbl> <lgl>       
-1 calico    2.1 TRUE        
+    coat weight likes_string
+1 calico    2.1         TRUE
 ~~~
 {: .output}
 
@@ -1185,7 +1156,7 @@ str(cats[1,])
 
 
 ~~~
-Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
+'data.frame':	1 obs. of  3 variables:
  $ coat        : Factor w/ 3 levels "black","calico",..: 2
  $ weight      : num 2.1
  $ likes_string: logi TRUE
@@ -1219,12 +1190,10 @@ Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
 > > 
 > > 
 > > ~~~
-> > # A tibble: 3 x 1
-> >   coat  
-> >   <fct> 
+> >     coat
 > > 1 calico
-> > 2 black 
-> > 3 tabby 
+> > 2  black
+> > 3  tabby
 > > ~~~
 > > {: .output}
 > > We can think of a data frame as a list of vectors. The single brace `[1]`
@@ -1269,12 +1238,10 @@ Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
 > > 
 > > 
 > > ~~~
-> > # A tibble: 3 x 1
-> >   coat  
-> >   <fct> 
+> >     coat
 > > 1 calico
-> > 2 black 
-> > 3 tabby 
+> > 2  black
+> > 3  tabby
 > > ~~~
 > > {: .output}
 > > Here we are using a single brace `["coat"]` replacing the index number with
@@ -1288,10 +1255,8 @@ Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
 > > 
 > > 
 > > ~~~
-> > # A tibble: 1 x 1
-> >   coat  
-> >   <fct> 
-> > 1 calico
+> > [1] calico
+> > Levels: black calico tabby
 > > ~~~
 > > {: .output}
 > > This example uses a single brace, but this time we provide row and column
@@ -1307,12 +1272,8 @@ Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
 > > 
 > > 
 > > ~~~
-> > # A tibble: 3 x 1
-> >   coat  
-> >   <fct> 
-> > 1 calico
-> > 2 black 
-> > 3 tabby 
+> > [1] calico black  tabby 
+> > Levels: black calico tabby
 > > ~~~
 > > {: .output}
 > > Like the previous example we use single braces and provide row and column
@@ -1327,10 +1288,8 @@ Classes 'tbl_df', 'tbl' and 'data.frame':	1 obs. of  3 variables:
 > > 
 > > 
 > > ~~~
-> > # A tibble: 1 x 3
-> >   coat   weight likes_string
-> >   <fct>   <dbl> <lgl>       
-> > 1 calico    2.1 TRUE        
+> >     coat weight likes_string
+> > 1 calico    2.1         TRUE
 > > ~~~
 > > {: .output}
 > > Again we use the single brace with row and column coordinates. The column

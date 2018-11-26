@@ -20,12 +20,12 @@ source: Rmd
 ```{r, include=FALSE}
 source("../bin/chunk-options.R")
 knitr_fig_path("04-")
-library(tidyverse)
 ## Save the data
-cats_orig <- tibble(coat = factor(c("calico", "black", "tabby")),
-                     weight = c(2.1, 5.0, 3.2),
+
+cats_orig <- data.frame(coat = factor(c("calico", "black", "tabby")),
+                   weight = c(2.1, 5.0, 3.2),
                    likes_string = c(1, 0, 1))
-cats_bad <- tibble(coat = factor(c("calico", "black", "tabby", "tabby")),
+cats_bad <- data.frame(coat = factor(c("calico", "black", "tabby", "tabby")),
                    weight = factor(c(2.1, 5.0, 3.2, '2.3 or 2.4')),
                    likes_string = c(1, 0, 1, 1))
 cats <- cats_orig
@@ -36,10 +36,10 @@ such as you may already have in a spreadsheet or a CSV file. Let's start by
 making a toy dataset in your `data/` directory, called `feline-data.csv`:
 
 ```{r}
-cats_orig <- tibble(coat = factor(c("calico", "black", "tabby")),
-                     weight = c(2.1, 5.0, 3.2),
-                   likes_string = c(1, 0, 1))
-write_csv(x = cats, path = 'data/feline_data.csv')
+cats <- data.frame(coat = c("calico", "black", "tabby"),
+                    weight = c(2.1, 5.0,3.2),
+                    likes_string = c(1, 0, 1))
+write.csv(x = cats, file = "data/feline-data.csv", row.names = FALSE)
 ```
 
 The contents of the new file, `feline-data.csv`:
@@ -59,19 +59,19 @@ tabby,3.2,1
 We can load this into R via the following:
 
 ```{r}
-cats <- read_csv('data/feline_data.csv')
+cats <- read.csv(file = "data/feline-data.csv")
 cats
 ```
 
-The `read_delim` function is used for reading in tabular data stored in a text
+The `read.table` function is used for reading in tabular data stored in a text
 file where the columns of data are separated by punctuation characters such as
 CSV files (csv = comma-separated values). Tabs and commas are the most common
-punctuation characters used to separate or delimit data points in csv files. 
-For convenience tidyverse provides 2 other versions of `read_delim`. These are: `read_csv`
-for files where the data are separated with commas and `read_delim` for files
-where the data are separated with tabs. Of these three functions `read_csv` is
-the most commonly used.  If needed it is possible to override the default 
-delimiting punctuation marks for both `read_csv` and `read_delim`.
+punctuation characters used to separate or delimit data points in csv files.
+For convenience R provides 2 other versions of `read.table`. These are: `read.csv`
+for files where the data are separated with commas and `read.delim` for files
+where the data are separated with tabs. Of these three functions `read.csv` is
+the most commonly used.  If needed it is possible to override the default
+delimiting punctuation marks for both `read.csv` and `read.delim`.
 
 
 We can begin exploring our dataset right away, pulling out columns by specifying
@@ -143,7 +143,7 @@ Load the new cats data like before, and check what type of data we find in the
 `weight` column:
 
 ```{r}
-cats <- read_csv(file="data/feline-data_v2.csv")
+cats <- read.csv(file="data/feline-data_v2.csv")
 typeof(cats$weight)
 ```
 
@@ -162,7 +162,7 @@ double. The table that R loaded our cats data into is something called a
 structure* - that is, a structure which R knows how to build out of the basic
 data types.
 
-We can see that it is a *tibble* by calling the `class` function on it:
+We can see that it is a *data.frame* by calling the `class` function on it:
 
 ```{r}
 class(cats)
@@ -184,7 +184,7 @@ tabby,3.2,1
 And back in RStudio:
 
 ```{r, eval=FALSE}
-cats <- read_csv(file="data/feline-data.csv")
+cats <- read.csv(file="data/feline-data.csv")
 ```
 
 ```{r, include=FALSE}
@@ -362,9 +362,9 @@ names(my_example)
 {: .challenge}
 
 
-## Tibbles
+## Data Frames
 
-We said that columns in tibbles were vectors:
+We said that columns in data frames were vectors:
 
 ```{r}
 str(cats$weight)
